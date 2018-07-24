@@ -5,10 +5,6 @@ SOURCES = $(SRC_DIR)entry.S \
 			$(SRC_DIR)trap_handler.c \
  			$(SRC_DIR)oscillo.s \
 
-# 			$(SRC_DIR)monitor.s \
-#			$(SRC_DIR)input_signal.s
-#			$(SRC_DIR)coeffs.s 
-
 INCLUDES = -I./include
 
 
