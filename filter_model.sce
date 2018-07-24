@@ -138,24 +138,22 @@ if output_file == "Floating"
     mclose(fid);
 
 else  // FIXED-POINT
-    // EXPORTING THE COEFFS
     
-    COEFF_PATH = "/home/noureddine-as/PFE_2018/software/TP_3A_Phelma/examples/spike-oscillo-demo/src/coeffs.s"
-    INPUT_PATH = "/home/noureddine-as/PFE_2018/software/TP_3A_Phelma/examples/spike-oscillo-demo/src/input_signal.s"
-    OSCILLO_PATH = "/home/noureddine-as/PFE_2018/software/TP_3A_Phelma/examples/spike-oscillo-demo/src/test.s"
-        
-//    N = size(coeffs)(2);
-//    fid = mopen(COEFF_PATH,'w');
-//    mfprintf(fid, '# This is the assembly file generated for COEFFS signal \n');
-//    mfprintf(fid, '  .section "".oscillo"",""aw"",@progbits \n');
-//    mfprintf(fid, '# Number of filter coeffs \n#define    N     %d\n\n', N);
-//    mfprintf(fid, 'app_status: \n  .byte 0x00 \nspike_status: \n  .byte 0x00 \nn_rows: \n  .half 0x%04x \ndata: \n', N);
-//  
-//    for i = 1:N
-//        mfprintf(fid,'  .byte 0x%02x\n',coeffs(i));
-//    end
-//    //mfprintf(fid,'%f };\n', coeffs(N));
-//    mclose(fid);
+    COEFF_PATH = "include/FIR_COEFFS.h"
+    OSCILLO_PATH = "src/oscillo.s"
+    
+    // EXPORTING THE COEFFS
+    N = size(coeffs)(2);
+    fid = mopen(COEFF_PATH,'w');
+    mfprintf(fid,'// Number of filter coeffs \n #define    N     %d\n\n', N);
+    mfprintf(fid,'uint8_t h[N] = {');
+    for i = 1:N-1
+        mfprintf(fid,'0x%02x,',coeffs(i));
+        if modulo(i,16) == 0    mfprintf(fid, '\n\t\t');
+        end
+    end
+    mfprintf(fid,'0x%02x };\n', coeffs(N));
+    mclose(fid);
     
     
     Nx = size(input_signal)(2);
@@ -173,106 +171,23 @@ else  // FIXED-POINT
     mfprintf(fid, '# Output signal samples \n#define    Ny     %d\n\n', Ny);
     mfprintf(fid, '\nout_n_rows:\n  .half 0x%04x \nout_data: \n', Ny);
   
+      // OUTPUT_BYTES = 1, All Zeros;
+    for i = 1:Ny
+        mfprintf(fid,'  .byte 0x%02x\n', 0); //output_signal(i) / (2**(16)) );
+    end
+  
+//    // OUTPUT_BYTES = 1;
 //    for i = 1:Ny
-//        mfprintf(fid,'  .word 0x%08x\n',output_signal(i));
+//        mfprintf(fid,'  .byte 0x%02x\n',output_signal(i) / (2**(16)) );
+//    end
+    
+    // OUTPUT_BYTES = 2;
+//    for i = 1:Ny
+//        mfprintf(fid,'  .half 0x%02x\n',output_signal(i) / (2**(8)) );
 //    end
 //    
-    OUTPUT_BYTES = 8;
-    for i = 1:Ny
-        mfprintf(fid,'  .byte 0x%02x\n',output_signal(i) / (2**(12)) );
-    end
-    
     //mfprintf(fid,'%f };\n', coeffs(N));
     mclose(fid);
     
-//    
-//    // EXPORTING INPUT SIGNAL
-//    N = size(input_signal)(2);
-//    fid = mopen('/home/noureddine-as/PFE_2018/software/TP_3A_Phelma/examples/serial_filter_demo_v0/include/INPUT_SIGNAL.h','w');
-//    mfprintf(fid,'// Number of input signal samples \n #define    Nx     %d\n\n', N);
-//    //mfprintf(fid, '// Frequence d''echantillonnage Fs = %d  \n\n', Fs);
-//    mfprintf(fid,'float x_signal[Nx] = {');
-//    //mfprintf(fid,']= {');
-//    for i = 1:N-1
-//        mfprintf(fid,'%f,',input_signal(i));
-//        if modulo(i,8) == 0    mfprintf(fid, '\n\t\t');
-//        end
-//    end
-//    mfprintf(fid,'%f };\n', input_signal(N));
-//    mclose(fid);
-////    
-//    // EXPORTING OUTPUT SIGNAL FOR COMPARISON
-//    N = size(output_signal)(2);
-//    fid = mopen('/home/noureddine-as/PFE_2018/software/TP_3A_Phelma/examples/serial_filter_demo_v0/include/OUTPUT_SIGNAL.h','w');
-//    mfprintf(fid,'// Number of input signal samples \n #define    Ny     %d\n\n', N);
-//    //mfprintf(fid, '// Frequence d''echantillonnage Fs = %d  \n\n', Fs);
-//    mfprintf(fid,'float y_signal[Ny] = {');
-//    //mfprintf(fid,']= {');
-//    for i = 1:N-1
-//        mfprintf(fid,'%f,',output_signal(i));
-//        if modulo(i,8) == 0    mfprintf(fid, '\n\t\t');
-//        end
-//    end
-//    mfprintf(fid,'%f };\n', output_signal(N));
-//    mclose(fid);
-    
-//else
-//    N = size(coeffs)(2);
-//    fid = mopen('FIR_COEF.asm','w');
-//    mfprintf(fid, 'N    EQU    %d\n\n',N+1);
-//    for i = 0:N
-//        mfprintf(fid,'h%d     .word   %d\n',i, coeffs(i+1));
-//    end
+
 end
-
-
-// Plot Input/Output -----------------------------------------------------------
-
-// Global Vision
-//if plot_global == "1" then
-//    
-//    figure()
-//    subplot( 2 , 1 , 1 );
-//    plot( t , input_signal , '-b') ;
-//    title("Input signal complete");
-//    set(gca(),"grid",[1 1]);
-//    
-//    subplot( 2 , 1 , 2 );
-//    plot( t , output_signal , '-r' ) ;
-//    title("Output signal global");
-//    set(gca(),"grid",[1 1]);
-//end
-//
-//// Zoomed
-//if plot_zoom == "1" then
-//    
-//    samples = 3*size_filter;
-//    figure()
-//    subplot( 2 , 1 , 1 );
-//    plot( t(1:samples) , input_signal(1:samples) , '-b') ;
-//    title("Input signal zommed");
-//    set(gca(),"grid",[1 1]);
-//    
-//    subplot( 2 , 1 , 2 );
-//    plot( t( 1 : samples ) , output_signal( 1 : samples ) , '-ro' ) ;
-//    title("Output signal global");
-//    set(gca(),"grid",[1 1]);
-//end
-//
-//// Filter
-//if plot_coeffs == "1" then
-//    figure();
-//    
-//    subplot( 2 , 1 , 1 );
-//    plot( 1:1:n , coeffs , '-co'); // 
-//    plot( 1:1:n , round(coeffs) , '-ro'); // 
-//    title("Filter Coefficients");
-//    set(gca(),"grid",[1 1]);
-//        
-//    subplot( 2 , 1 , 2 );    
-//    [ Mag f_axis ] = frmag( coeffs , padding , 1000 ); 
-//    plot( f_axis , Mag./max(Mag) );
-//    title("Normalized Frequency Response");
-//    set(gca(),"grid",[1 1]);
-//end
-//
