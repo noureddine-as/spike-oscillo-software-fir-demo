@@ -1,3 +1,9 @@
+# /*======================================================================*/
+# /* TIMA LABORATORY                                                      */
+# /* Spike with signal and image visual presentation                      */ 
+# /* noureddine-as                                                        */
+# /* noureddine.aitsaid0@gmail.com                                        */
+# /*======================================================================*/
 
 SOURCES = $(SRC_DIR)entry.S \
 			$(SRC_DIR)main.c \

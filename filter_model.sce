@@ -1,3 +1,10 @@
+/*======================================================================*/
+/* TIMA LABORATORY                                                      */
+/* Spike with signal and image visual presentation                      */ 
+/* noureddine-as                                                        */
+/* noureddine.aitsaid0@gmail.com                                        */
+/*======================================================================*/
+
 clear all;
 close();
 // Configure script-- ----------------------------------------------------------
